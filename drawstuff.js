@@ -179,23 +179,26 @@ function main() {
     var hDelta = 1 / (urx-ulx); // norm'd horizontal delta
     var hcDelta = new Color(); // horizontal color delta
 
-    // do the interpolation
+// Do the interpolation, drawing only inside a triangle whose apex is
+    // centered on the top edge and whose base spans the bottom edge.
     for (var y=uly; y<=lly; y++) {
-        hc.copy(lc); // begin with the left color
         hcDelta.copy(rc).subtract(lc).scale(hDelta); // reset horiz color delta
         var rowProgress = (y-uly) / (lly-uly);
         var halfWidth = ((urx-ulx) / 2) * rowProgress;
-        var xStart = Math.ceil(apexX-halfWidth);
-        var xEnd = Math.floor(apexX+halfWidth);
+        var xStart = Math.ceil(((ulx+urx) / 2)-halfWidth);
+        var xEnd = Math.floor(((ulx+urx) / 2)+halfWidth);
 
         // Begin with the original rectangle's color at this row position.
         hc.copy(lc).add(hcDelta.clone().scale(xStart-ulx));
+
         for (var x=xStart; x<=xEnd; x++) {
             drawPixel(imagedata,x,y,hc);
             hc.add(hcDelta);
         } // end horizontal
+
         lc.add(lcDelta);
         rc.add(rcDelta);
+
     } // end vertical
 
     context.putImageData(imagedata, 0, 0); // display the image in the context
